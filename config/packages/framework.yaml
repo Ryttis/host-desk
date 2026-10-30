@@ -1,0 +1,36 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    csrf_protection: true
+    form: true
+    default_locale: en
+    translator:
+        fallbacks: [en]
+    router:
+        utf8: true
+    handle_all_throwables: true
+    http_method_override: false
+    session:
+        name: HOSTDESKSESSID
+        cookie_secure: auto
+        cookie_httponly: true
+        cookie_samesite: lax
+        gc_maxlifetime: 3600
+    php_errors:
+        log: true
+    validation:
+        email_validation_mode: html5
+    asset_mapper:
+        paths:
+            - assets/
+    rate_limiter:
+        enrollment:
+            policy: fixed_window
+            limit: 5
+            interval: '15 minutes'
+    lock: flock
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

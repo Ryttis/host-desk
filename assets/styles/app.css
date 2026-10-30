@@ -1,0 +1,9 @@
+:root { color-scheme: light; font: 16px/1.5 system-ui, sans-serif; color: #172b3a; background: #f3f6f8; }
+body { margin: 0; }
+main.auth { max-width: 28rem; margin: 8vh auto; padding: 2rem; background: white; border: 1px solid #dce3e8; border-radius: .5rem; }
+a { color: #145c85; }
+label { display: block; margin-top: 1rem; }
+input { box-sizing: border-box; width: 100%; padding: .7rem; border: 1px solid #8c9ba5; border-radius: .25rem; font: inherit; }
+button { margin-top: 1.3rem; padding: .7rem 1.2rem; background: #145c85; color: white; border: 0; border-radius: .25rem; font: inherit; cursor: pointer; }
+.error { color: #9b1c1c; }
+.secret { overflow-wrap: anywhere; user-select: all; }

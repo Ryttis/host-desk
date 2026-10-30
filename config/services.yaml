@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+    App\:
+        resource: '../src/'
+        exclude: '../src/{Entity,Kernel.php}'
+    App\Security\TotpCipher:
+        arguments:
+            $keyFile: '%env(resolve:TOTP_KEY_FILE)%'
+            $projectDir: '%kernel.project_dir%'

@@ -1,0 +1,49 @@
+security:
+    password_hashers:
+        App\Entity\User: auto
+    providers:
+        local_users:
+            id: App\Security\UserProvider
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_VIEWER
+        ROLE_OPERATOR: ROLE_VIEWER
+    firewalls:
+        main:
+            lazy: true
+            provider: local_users
+            user_checker: App\Security\UserChecker
+            form_login:
+                login_path: login
+                check_path: login
+                enable_csrf: true
+                default_target_path: /admin
+                always_use_default_target_path: true
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
+            two_factor:
+                auth_form_path: 2fa_login
+                check_path: 2fa_login_check
+                enable_csrf: true
+                default_target_path: /admin
+                always_use_default_target_path: true
+            logout:
+                path: logout
+                target: login
+                enable_csrf: true
+    access_control:
+        - { path: ^/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/assets/, roles: PUBLIC_ACCESS }
+        - { path: ^/enroll$, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/, roles: ROLE_VIEWER }
+
+when@test:
+    security:
+        password_hashers:
+            App\Entity\User:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

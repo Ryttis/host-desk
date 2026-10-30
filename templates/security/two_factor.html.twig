@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h2>Authenticator verification</h2>
+{% if authenticationError %}<p class="error" role="alert">The code was rejected or too many attempts were made. Try again later.</p>{% endif %}
+<form action="{{ path('2fa_login_check') }}" method="post">
+<label for="auth-code">Authenticator code</label><input id="auth-code" name="_auth_code" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" required autofocus>
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('two_factor') }}"><button>Verify</button>
+</form>
+<p><a href="{{ logout_path() }}">Sign out</a></p>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% block content_title %}HostDesk inventory{% endblock %}
+{% block main %}
+<p>Servers, applications and their stage/prod environments. Infrastructure facts and credentials remain unverified.</p>
+<ul>{% for link in links %}<li><a href="{{ link.url }}">{{ link.label }}</a> — {{ link.active }} active</li>{% endfor %}</ul>
+{% if links|filter(link => link.active > 0)|length == 0 %}
+<p>No inventory yet. An Admin can add servers and projects, then create environments from the Environments list.</p>
+{% endif %}
+<p>Projects can exist without environments and appear as “Not configured”. Archive records when they are no longer in use; archiving performs no remote action.</p>
+{% endblock %}

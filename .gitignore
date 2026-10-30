@@ -1,0 +1,11 @@
+/vendor/
+/var/
+/.env.local
+/.env.*.local
+/public/assets/
+/public/bundles/
+/.env.local.php
+/auth.json
+/.phpunit.cache/
+/phpunit.xml
+/.DS_Store
