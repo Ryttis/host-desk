@@ -2,7 +2,7 @@
 
 Slice 01 is a local municipal infrastructure inventory: servers, projects, and explicit stage/prod environments. It does not connect to servers or perform deployments, backups, TLS, DNS, or process actions. Infrastructure facts and credentials remain unverified; demo records are fictional.
 
-**Current delivery status:** Slice 01 is implemented and validated locally, ready for a separate Astra xhigh review on `feat/inventory-access` against base `e15f7d0`. Dependencies are locked; PostgreSQL migrations, framework checks, focused tests and a Chrome walkthrough passed. These are implementation checks, not independent review or release approval. See [docs/PLAN.md](docs/PLAN.md).
+**Current delivery status:** Slice 01 is an implementation candidate on `feat/inventory-access` against base `e15f7d0`, pending separate Astra xhigh review. See [docs/PLAN.md](docs/PLAN.md) for validation and limits.
 
 ## Requirements and local startup
 
@@ -23,7 +23,7 @@ php -S 127.0.0.1:18080 -t public
 
 Open `http://127.0.0.1:18080/login`. Enter the password chosen interactively, add the displayed enrollment key to a TOTP authenticator, then confirm a valid code. Enrollment completion signs you out; sign in again with password and TOTP. This local HTTP command is for loopback development only. Any future hosted setup needs HTTPS and its own deployment review.
 
-`local-secrets.php` creates random, untracked `.env.local`, `.env.test.local`, database credentials and separate local/test TOTP keys under `var/keys/`, with owner-only permissions. Existing files are preserved. Nothing secret is printed. `var/` is outside the web document root and excluded from Git. Keep protected backups of the encryption key separately from database backups; replacing it makes existing enrolled secrets unreadable.
+The tracked `.env` and `.env.test` set the application mode and the respective key-file paths; they contain no credentials. `local-secrets.php` creates random, untracked `.env.local`, `.env.test.local`, database credentials and separate local/test TOTP keys under `var/keys/`, with owner-only permissions. Existing files are preserved. Nothing secret is printed. `var/` is outside the web document root and excluded from Git. Keep protected backups of the encryption key separately from database backups; replacing it makes existing enrolled secrets unreadable.
 
 `local-db.sh` creates a cluster only in `var/postgresql`, listening on `127.0.0.1:55432`, with a private socket directory. It creates only `hostdesk` and `hostdesk_test`, owned by a project-specific login. It does not manage global PostgreSQL services or use another project's database. Local socket trust is restricted by directory permissions; TCP uses SCRAM. If the port is occupied, resolve the collision explicitly; do not point HostDesk at the existing service.
 
@@ -93,27 +93,15 @@ composer audit
 
 The test suite truncates **only a PostgreSQL database named `hostdesk_test`**. Never put real data there. It covers anonymous/enrollment/MFA boundaries, direct Viewer/Operator mutation denial, Admin CRUD/archive with safe actor audit, rollback, duplicate environment kinds, archival rules, account session revocation, and wrong-key encryption failure. It is intentionally focused; it does not test every field/getter.
 
-Validation completed on 2026-10-30 with PHP 8.4.13 and isolated PostgreSQL 16:
+Validation on 2026-11-06 used PHP 8.5.4 and a fresh project-local PostgreSQL 18 cluster. Both databases received all three migrations and both schemas matched Doctrine metadata. Composer validation and platform checks, container/YAML/Twig lint, asset installation and compilation, and migration up-to-date checks passed. PHPUnit passed **27 tests, 235 assertions**. Expected access-denied exceptions were logged by negative tests. Composer audit initially reported 15 advisories across 10 packages; the locked Symfony dependencies were updated within the existing constraints, after which the audit found no advisories and the checks and suite passed again.
 
-- Composer install/lock generation, strict manifest validation and platform requirements passed; `composer audit --locked` found no vulnerability advisories.
-- Container lint, all 9 YAML configuration files and all 6 Twig templates passed. Asset installation and AssetMapper compilation passed.
-- All three migrations applied to both `hostdesk` and `hostdesk_test`; both schemas match Doctrine metadata. Migration status reports no pending versions.
-- PHPUnit: **27 tests, 235 assertions passed**, without PHPUnit warnings. Coverage includes password/enrollment/TOTP boundaries and throttling, CSRF, both reader roles, Admin server/project/environment forms, immutable archives, safe audit contents and rollback on audit failure, stale edits, account CLI, demo collisions, and session revocation both before and after TOTP.
-- Headless installed Chrome with a local Playwright driver completed password login, enrollment and mandatory TOTP for Admin, Viewer and Operator. Admin server create/edit/archive and audit browsing passed; reader mutation and audit URLs returned 403. No JavaScript page errors occurred. Login, inventory and audit screenshots were visually inspected. A harmless missing favicon request returned 404.
-
-The browser walkthrough used native development sessions with the isolated **test** database and test keys on loopback port 18080 (8080 was occupied). Temporary driver files, generated credentials and screenshots remain ignored under `var/browser/`; no enrollment secrets were captured in screenshots. The walkthrough server was stopped. The local PostgreSQL cluster remains available on port 55432. The dev database has schema only; create your own local account using the interactive command above.
-
-Earlier sandbox restrictions were resolved using approved execution outside the sandbox for dependency downloads, PostgreSQL shared memory, loopback connections and Chrome. There are no remaining implementation blockers. Browser verification was desktop Chrome only; no cross-browser, mobile, load or independent security review is claimed.
+The 2026-10-30 test and desktop Chrome results were obtained in a previous environment and do not verify this checkout. The fresh environment has separate newly generated development and test keys; no earlier encrypted data was reused. Headless Chrome rendered the login form on this machine; a full authenticated browser walkthrough remains unverified here. Cross-browser, mobile, load and independent security review are also unverified.
 
 ## Review handoff
 
 Review branch: `feat/inventory-access`. Review base: `e15f7d0` (existing `main`, preserved). Obtain the committed candidate with `git rev-parse HEAD`; the exact candidate SHA is supplied in the implementation handoff.
 
-The three implementation commits cover:
-
-1. Symfony runtime, locked dependencies, mandatory MFA, local account administration and account audit storage.
-2. Server/project/environment inventory, archive lifecycle, safe atomic audit writes and fictional demo data.
-3. Focused acceptance/regression tests and the validated startup/review documentation.
+The checkpoint commit contains the Slice 01 implementation. Subsequent changes restore the missing safe environment defaults and update the lockfile for published security advisories. The exact candidate SHA is supplied in the implementation handoff.
 
 Separate Astra xhigh review is pending. No push, merge, deployment, remote infrastructure access or Slice 02 work has been performed.
 
